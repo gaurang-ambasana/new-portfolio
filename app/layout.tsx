@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import type { Metadata } from "next";
 import "./globals.css";
-import WormholeBackground from "@/components/WormholeBackground";
+import WormholeBackground from "@/components/warm-hole-background";
 
 export const metadata: Metadata = {
   title: "Gaurang Ambasana | Portfolio",
