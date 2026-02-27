@@ -9,7 +9,7 @@ export default function NeuralMesh() {
   const ref = useRef<any>(null);
 
   const sphere = useMemo(
-    () => random.inSphere(new Float32Array(15000), { radius: 5 }), // larger radius to surround nodes
+    () => random.inSphere(new Float32Array(15000), { radius: 5 }),
     [],
   );
 

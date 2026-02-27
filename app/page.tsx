@@ -8,7 +8,6 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 w-screen h-screen overflow-hidden bg-slate-950 text-white">
-      {/* Hero text – conditionally positioned and faded */}
       <div
         className={`
           absolute z-10 pointer-events-none transition-all duration-500

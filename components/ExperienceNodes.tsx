@@ -53,7 +53,6 @@ export const experiences = [
   },
 ];
 
-// --- Camera rig (same as before, with error guard) ---
 function CameraRig({ activeNode }: { activeNode: number | null }) {
   const { camera } = useThree();
   const targetPos = useRef(new THREE.Vector3());
@@ -97,7 +96,6 @@ function CameraRig({ activeNode }: { activeNode: number | null }) {
   return null;
 }
 
-// --- Individual node with popup ---
 function ExperienceNode({
   data,
   index,
@@ -150,16 +148,13 @@ function ExperienceNode({
         />
       </mesh>
 
-      {/* Popup that appears when node is active */}
       <AnimatePresence>
         {isActive && (
-          // Inside ExperienceNode component, replace the <Html> block with this:
-
           <Html
-            position={[0, 0.9, 0]} // floats just above the node
+            position={[0, 0.9, 0]}
             center
-            distanceFactor={6} // controls overall size
-            portal={{ current: document.body }} // 👈 renders outside canvas container
+            distanceFactor={6}
+            portal={{ current: document.body }}
             style={{ pointerEvents: "auto", userSelect: "none", zIndex: 100 }}
           >
             <motion.div
@@ -185,8 +180,6 @@ function ExperienceNode({
                   </li>
                 ))}
               </ul>
-
-              {/* Navigation and close buttons */}
               <div className="flex justify-between items-center mt-1">
                 <button
                   onClick={(e) => {
@@ -230,7 +223,6 @@ function ExperienceNode({
   );
 }
 
-// --- Main timeline ---
 export default function ExperienceTimeline({
   activeNode,
   setActiveNode,
