@@ -94,13 +94,13 @@ export default function Home() {
 
         {/* Professional Tagline */}
         <p className="max-w-2xl mx-auto text-center text-slate-400 text-sm md:text-lg leading-relaxed px-6 py-8 border-t border-white/5 backdrop-blur-sm bg-slate-950/20 rounded-3xl">
-          Senior Full Stack Engineer with{" "}
+          Full Stack Engineer with{" "}
           <span className="text-white font-bold">5+ years of experience</span>{" "}
           in the software industry.
           <br className="hidden md:block" />
-          Specializing in building and scaling AI-integrated SaaS platforms.
-          <span className="text-[10px] uppercase tracking-[0.5em] text-slate-600 mt-8 block animate-bounce">
-            Scroll to explore timeline
+          Specializing in building and scaling AI-integrated Web Applications & SaaS platforms.
+          <span className="text-sm uppercase tracking-[0.5em] text-slate-600 mt-8 block animate-bounce font-bold">
+            Scroll to explore professional journey
           </span>
         </p>
       </div>
@@ -112,7 +112,7 @@ export default function Home() {
         ${isScrolled && activeNode === null ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}
       `}
       >
-        <h3 className="text-[10px] font-mono uppercase tracking-[0.4em] text-indigo-500 font-bold mb-2">
+        <h3 className="text-[14px] font-mono uppercase tracking-[0.4em] text-indigo-500 font-bold mb-2">
           Professional History
         </h3>
         <p className="text-lg md:text-xl font-medium text-slate-200 tracking-tight">
