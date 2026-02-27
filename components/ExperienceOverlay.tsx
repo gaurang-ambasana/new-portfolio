@@ -74,13 +74,15 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
           <div className="flex gap-4">
             <button
               onClick={() => handleNav(-1)}
-              className="px-4 py-2 bg-white/5 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/10 transition-all"
+              disabled={activeNode.index === 0}
+              className="px-4 py-2 bg-white/5 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               PREV
             </button>
             <button
               onClick={() => handleNav(1)}
-              className="px-4 py-2 bg-white/5 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/10 transition-all"
+              disabled={activeNode.index === expData.length - 1}
+              className="px-4 py-2 bg-white/5 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               NEXT
             </button>
@@ -89,7 +91,7 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
             onClick={() => setActiveNode(null)}
             className="text-slate-500 hover:text-white transition-colors"
           >
-            ✕
+            X
           </button>
         </div>
         <h2
@@ -111,7 +113,7 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
               className="flex gap-4 text-slate-300 leading-relaxed text-[15px]"
             >
               <span
-                className="mt-2 text-[10px]"
+                className="mt-1 text-[10px]"
                 style={{ color: exp.color }}
               >
                 ▶
