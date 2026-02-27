@@ -6,10 +6,10 @@ import { Text, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 
 export const experiences = [
-  { company: "GRAIXL OÜ", pos: [-4.5, -1, 0], color: "#6366f1" },
-  { company: "Tailorbird Inc", pos: [-1.5, -1, 0], color: "#14b8a6" },
-  { company: "Wipro", pos: [1.5, -1, 0], color: "#f59e0b" },
-  { company: "Searce Inc", pos: [4.5, -1, 0], color: "#ec4899" },
+  { company: "GRAIXL OÜ", pos: [-4.5, -1, 0], color: "#6366f1", position: "Full Stack Developer" },
+  { company: "Tailorbird Inc", pos: [-1.5, -1, 0], color: "#14b8a6", position: "Software Engineer" },
+  { company: "Wipro", pos: [1.5, -1, 0], color: "#f59e0b", position: "Software Engineer" },
+  { company: "Searce Inc", pos: [4.5, -1, 0], color: "#ec4899", position: "Intern + Work Transformation Analyst" },
 ];
 
 function ExperienceNode({ data, index, isActive, onClick }: any) {
