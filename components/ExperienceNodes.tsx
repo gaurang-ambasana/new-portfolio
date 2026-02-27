@@ -2,264 +2,120 @@
 
 import { useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
-import { motion, AnimatePresence } from "framer-motion";
+import { Text, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 
 export const experiences = [
-  {
-    company: "GRAIXL OÜ",
-    role: "Full Stack Developer",
-    date: "July 2025 - Present",
-    color: "#6366f1",
-    highlights: [
-      "Engineered AI orchestration layer with OpenAI, Deepseek-R1, and Groq.",
-      "Built real-time voice AI agent with Python and LiveKit.",
-    ],
-    position: [-4.5, 0, 0] as [number, number, number],
-  },
-  {
-    company: "Tailorbird Inc",
-    role: "Software Engineer",
-    date: "Feb 2023 - June 2025",
-    color: "#14b8a6",
-    highlights: [
-      "Led React to Next.js migration, achieving 30% page load speed improvement.",
-      "Developed backend services using Python (FastAPI, GraphQL) and Node.js.",
-    ],
-    position: [-1.5, 0, 0] as [number, number, number],
-  },
-  {
-    company: "Wipro",
-    role: "Software Engineer",
-    date: "Nov 2021 - Feb 2023",
-    color: "#f59e0b",
-    highlights: [
-      "Managed and optimized the data analytics pipeline using BigQuery.",
-      "Designed business intelligence dashboards in Looker Studio.",
-    ],
-    position: [1.5, 0, 0] as [number, number, number],
-  },
-  {
-    company: "Searce Inc",
-    role: "Intern + Analyst",
-    date: "Apr 2020 - Nov 2021",
-    color: "#ec4899",
-    highlights: [
-      "Built a complete insurance claim processing system on Google Cloud.",
-      "Migrated financial models from Anaplan to Google Sheets.",
-    ],
-    position: [4.5, 0, 0] as [number, number, number],
-  },
+  { company: "GRAIXL OÜ", pos: [-4.5, -1, 0], color: "#6366f1" },
+  { company: "Tailorbird Inc", pos: [-1.5, -1, 0], color: "#14b8a6" },
+  { company: "Wipro", pos: [1.5, -1, 0], color: "#f59e0b" },
+  { company: "Searce Inc", pos: [4.5, -1, 0], color: "#ec4899" },
 ];
 
-function CameraRig({ activeNode }: { activeNode: number | null }) {
-  const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3());
-  const targetLook = useRef(new THREE.Vector3());
-  const tempDir = useRef(new THREE.Vector3());
-  const tempQuat = useRef(new THREE.Quaternion());
-
-  useFrame((_, delta) => {
-    try {
-      const safeDelta = Math.min(delta, 0.1);
-
-      if (
-        activeNode !== null &&
-        activeNode >= 0 &&
-        activeNode < experiences.length
-      ) {
-        const nodeX = experiences[activeNode].position[0];
-        targetPos.current.set(nodeX, 0, 4);
-        targetLook.current.set(nodeX, 0, 0);
-      } else {
-        targetPos.current.set(0, 0, 9);
-        targetLook.current.set(0, 0, 0);
-      }
-
-      camera.position.lerp(targetPos.current, safeDelta * 4);
-
-      tempDir.current.subVectors(targetLook.current, camera.position);
-      if (tempDir.current.lengthSq() > 0.0001) {
-        tempDir.current.normalize();
-        tempQuat.current.setFromUnitVectors(
-          new THREE.Vector3(0, 0, -1),
-          tempDir.current,
-        );
-        camera.quaternion.slerp(tempQuat.current, safeDelta * 4);
-      }
-    } catch (error) {
-      console.error("CameraRig error:", error);
-    }
-  });
-
-  return null;
-}
-
-function ExperienceNode({
-  data,
-  index,
-  isActive,
-  onClick,
-  onNext,
-  onPrev,
-}: {
-  data: (typeof experiences)[0];
-  index: number;
-  isActive: boolean;
-  onClick: (index: number) => void;
-  onNext?: () => void;
-  onPrev?: () => void;
-}) {
+function ExperienceNode({ data, index, isActive, onClick }: any) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const textRef = useRef<any>(null);
+  const scroll = useScroll();
   const [hovered, setHover] = useState(false);
 
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * (isActive ? 0.5 : 0.2);
-      meshRef.current.rotation.x += delta * (isActive ? 0.3 : 0.1);
+  useFrame((state, delta) => {
+    if (meshRef.current && textRef.current) {
+      // 1. Calculate Visibility based on scroll offset
+      // Nodes start appearing after 10% scroll and are fully solid at 40%
+      const visibility = THREE.MathUtils.smoothstep(scroll.offset, 0.1, 0.4);
+
+      // 2. Animate Mesh (Diamond)
+      meshRef.current.rotation.y += delta * 0.4;
+
+      // Scale is 0 at home, grows to full size on scroll
+      const baseScale = visibility;
+      const interactionScale = isActive ? 1.4 : hovered ? 1.2 : 1;
+      meshRef.current.scale.lerp(
+        new THREE.Vector3().setScalar(baseScale * interactionScale),
+        0.1,
+      );
+
+      // Update material opacity (requires transparent: true on material)
+      if (meshRef.current.material instanceof THREE.MeshStandardMaterial) {
+        meshRef.current.material.opacity = visibility;
+      }
+
+      // 3. Animate Text (Company Name)
+      textRef.current.fillOpacity = visibility;
     }
   });
 
   return (
-    <group position={data.position}>
+    <group position={data.pos as [number, number, number]}>
       <mesh
         ref={meshRef}
         onClick={(e) => {
-          e.stopPropagation();
-          onClick(index);
+          // Only allow clicking if the node is actually visible
+          if (scroll.offset > 0.2) {
+            e.stopPropagation();
+            onClick({ index, x: e.clientX, y: e.clientY });
+          }
         }}
         onPointerOver={() => {
-          setHover(true);
+          if (scroll.offset > 0.2) setHover(true);
           document.body.style.cursor = "pointer";
         }}
         onPointerOut={() => {
           setHover(false);
           document.body.style.cursor = "auto";
         }}
-        scale={isActive ? 1.2 : 1}
       >
-        <octahedronGeometry args={[0.5, 0]} />
+        <octahedronGeometry args={[0.6, 0]} />
         <meshStandardMaterial
-          color={hovered || isActive ? "#ffffff" : data.color}
-          wireframe={!(hovered || isActive)}
+          color={data.color}
+          transparent // Crucial for fading
+          opacity={0}
+          wireframe={!hovered && !isActive}
           emissive={data.color}
-          emissiveIntensity={hovered || isActive ? 2 : 0.5}
+          emissiveIntensity={isActive ? 8 : 2}
         />
       </mesh>
 
-      <AnimatePresence>
-        {isActive && (
-          <Html
-            position={[0, 0.9, 0]}
-            center
-            distanceFactor={6}
-            portal={{ current: document.body }}
-            style={{ pointerEvents: "auto", userSelect: "none", zIndex: 100 }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.8 }}
-              transition={{ type: "spring", damping: 15 }}
-              className="bg-slate-900/90 backdrop-blur-md border border-slate-700 rounded-lg p-3 text-white shadow-2xl w-64"
-              style={{ borderLeft: `4px solid ${data.color}` }}
-            >
-              <h3
-                className="text-lg font-bold mb-0.5"
-                style={{ color: data.color }}
-              >
-                {data.company}
-              </h3>
-              <p className="text-xs text-slate-300">{data.role}</p>
-              <p className="text-xs text-slate-400 mb-2">{data.date}</p>
-              <ul className="list-disc list-inside space-y-0.5 text-xs text-slate-200 mb-2 max-h-32 overflow-y-auto">
-                {data.highlights.map((h, i) => (
-                  <li key={i} className="leading-tight">
-                    {h}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-between items-center mt-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPrev?.();
-                  }}
-                  className="p-1 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors text-sm"
-                  aria-label="Previous"
-                >
-                  ←
-                </button>
-                <span className="text-xs text-slate-400">
-                  {index + 1} / {experiences.length}
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNext?.();
-                  }}
-                  className="p-1 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors text-sm"
-                  aria-label="Next"
-                >
-                  →
-                </button>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClick(-1);
-                }}
-                className="absolute top-1 right-2 text-slate-400 hover:text-white text-sm"
-              >
-                ✕
-              </button>
-            </motion.div>
-          </Html>
-        )}
-      </AnimatePresence>
+      <Text
+        ref={textRef}
+        position={[0, -1.2, 0]}
+        fontSize={0.35}
+        color="white"
+        anchorY="top"
+        fillOpacity={0}
+      >
+        {data.company}
+      </Text>
     </group>
   );
 }
 
-export default function ExperienceTimeline({
-  activeNode,
-  setActiveNode,
-}: {
-  activeNode: number | null;
-  setActiveNode: (index: number | null) => void;
-}) {
-  const handlePrev = () => {
-    if (activeNode === null) return;
-    const prev = (activeNode - 1 + experiences.length) % experiences.length;
-    setActiveNode(prev);
-  };
+export default function ExperienceTimeline({ activeNode, setActiveNode }: any) {
+  const { camera } = useThree();
+  const targetPos = useRef(new THREE.Vector3(0, 0, 11));
 
-  const handleNext = () => {
-    if (activeNode === null) return;
-    const next = (activeNode + 1) % experiences.length;
-    setActiveNode(next);
-  };
+  useFrame((_, delta) => {
+    if (activeNode !== null) {
+      const [x, y] = experiences[activeNode].pos;
+      targetPos.current.set(x, y + 0.5, 4.5);
+    } else {
+      targetPos.current.set(0, 0, 11);
+    }
+    camera.position.lerp(targetPos.current, delta * 2);
+    camera.lookAt(0, 0, 0);
+  });
 
   return (
-    <group onPointerMissed={() => setActiveNode(null)}>
+    <group>
       <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <CameraRig activeNode={activeNode} />
-
-      {experiences.map((exp, index) => (
+      <pointLight position={[10, 10, 10]} intensity={1.5} />
+      {experiences.map((exp, i) => (
         <ExperienceNode
-          key={index}
-          index={index}
+          key={i}
+          index={i}
           data={exp}
-          isActive={activeNode === index}
-          onClick={(idx) => {
-            if (idx === -1) setActiveNode(null);
-            else setActiveNode(idx);
-          }}
-          onPrev={handlePrev}
-          onNext={handleNext}
+          isActive={activeNode === i}
+          onClick={setActiveNode}
         />
       ))}
     </group>
