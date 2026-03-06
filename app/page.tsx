@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Scene from "@/components/Scene";
+import CustomCursor from "@/components/CustomCursor";
 
 const WORDS = [
   "Software Engineer",
@@ -13,7 +14,11 @@ const WORDS = [
 
 export default function Home() {
   const [activeNode, setActiveNode] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+
+  const [scrollState, setScrollState] = useState({
+    isScrolled: false,
+    isPastExperience: false,
+  });
 
   const [titleIndex, setTitleIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
@@ -50,7 +55,8 @@ export default function Home() {
   );
 
   const handleScrollChange = useCallback(
-    (val: boolean) => setIsScrolled(val),
+    (state: { isScrolled: boolean; isPastExperience: boolean }) =>
+      setScrollState(state),
     [],
   );
 
@@ -58,11 +64,11 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 w-screen h-screen overflow-hidden bg-slate-950 text-white font-sans">
-      {/* Introduction Container */}
+      <CustomCursor />
       <div
         className={`
         absolute z-10 pointer-events-none transition-all duration-1000 flex flex-col items-center justify-center w-full h-full
-        ${activeNode !== null || isScrolled ? "opacity-0 -translate-y-20 scale-95" : "opacity-100"}
+        ${activeNode !== null || scrollState.isScrolled ? "opacity-0 -translate-y-20 scale-95" : "opacity-100"}
       `}
       >
         {/* Name: Staggered Typing Animation on First Render */}
@@ -77,39 +83,42 @@ export default function Home() {
               {char === " " ? "\u00A0" : char}
             </motion.span>
           ))}
-          {/* Cursor for the Name */}
           <motion.span
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
-            transition={{ repeat: 8, duration: 0.1, delay: 1.5 }} // Stops after name types
+            transition={{ repeat: 8, duration: 0.1, delay: 1.5 }}
             className="w-[4px] h-[1em] bg-indigo-500 ml-1 mt-2"
           />
         </h1>
 
-        {/* Continuous Typewriter Title */}
         <p className="text-xl md:text-3xl text-indigo-400 font-mono mb-8 h-10 flex items-center">
           {currentText}
           <span className="w-[3px] h-[0.8em] bg-slate-600 ml-2 animate-pulse" />
         </p>
-
-        {/* Professional Tagline */}
         <p className="max-w-2xl mx-auto text-center text-slate-400 text-sm md:text-lg leading-relaxed px-6 py-8 border-t border-white/5 backdrop-blur-sm bg-slate-950/20 rounded-3xl">
           Full Stack Engineer with{" "}
           <span className="text-white font-bold">5+ years of experience</span>{" "}
           in the software industry.
           <br className="hidden md:block" />
-          Specializing in building and scaling AI-integrated Web Applications & SaaS platforms.
+          Specializing in building and scaling AI-integrated Web Applications &
+          SaaS platforms.
           <span className="text-sm uppercase tracking-[0.5em] text-slate-600 mt-8 block animate-bounce font-bold">
             Scroll to explore professional journey
           </span>
         </p>
       </div>
 
-      {/* Instructional Title on Scroll */}
+      {/* 2. Professional History HUD: Visible only in the Experience Zone */}
       <div
         className={`
         absolute top-20 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none transition-all duration-700
-        ${isScrolled && activeNode === null ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}
+        ${
+          scrollState.isScrolled &&
+          !scrollState.isPastExperience &&
+          activeNode === null
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-10"
+        }
       `}
       >
         <h3 className="text-[14px] font-mono uppercase tracking-[0.4em] text-indigo-500 font-bold mb-2">
@@ -124,8 +133,30 @@ export default function Home() {
         </p>
       </div>
 
-      {/* 3D Scene */}
-      <div className="absolute inset-0 z-0 w-full h-full">
+      {/* 3. Featured Projects HUD: Visible only in the Projects Zone */}
+      <div
+        className={`
+          fixed top-20 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none transition-all duration-700
+          ${
+            scrollState.isPastExperience && activeNode === null
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-10"
+          }
+        `}
+      >
+        <h3 className="text-[14px] font-mono uppercase tracking-[0.4em] text-emerald-500 font-bold mb-2">
+          Featured Projects
+        </h3>
+        <p className="text-lg md:text-xl font-medium text-slate-200 tracking-tight">
+          Showcasing{" "}
+          <span className="text-white border-b border-emerald-500/50 italic">
+            Technical Innovation
+          </span>
+        </p>
+      </div>
+
+      {/* 3D Scene Container */}
+      <div className="fixed inset-0 z-0 w-full h-full">
         <Scene
           activeNode={activeNode}
           setActiveNode={handleActiveNodeChange}
