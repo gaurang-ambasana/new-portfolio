@@ -8,17 +8,23 @@ import NeuralMesh from "./NeuralMesh";
 import ExperienceTimeline from "./ExperienceNodes";
 import ExperienceOverlay from "./ExperienceOverlay";
 import SkillClouds from "./SkillsCloud";
+import ProjectGallery from "./ProjectGallery";
 
 function ScrollTracker({
   onScrollChange,
 }: {
-  onScrollChange: (val: boolean) => void;
+  onScrollChange: (state: {
+    isScrolled: boolean;
+    isPastExperience: boolean;
+  }) => void;
 }) {
   const scroll = useScroll();
   useEffect(() => {
     const checkScroll = () => {
-      // Small threshold to trigger the fade out
-      onScrollChange(scroll.offset > 0.02);
+      onScrollChange({
+        isScrolled: scroll.offset > 0.05,
+        isPastExperience: scroll.offset > 0.55,
+      });
     };
     const interval = setInterval(checkScroll, 50);
     return () => clearInterval(interval);
@@ -31,22 +37,20 @@ function Scene({ activeNode, setActiveNode, onScrollChange }: any) {
     <div className="relative w-full h-full">
       <Canvas
         camera={{ position: [0, 0, 11], fov: 50 }}
-        // Optimization: Stop capturing events if a detail card is open
         className={activeNode ? "pointer-events-none" : "pointer-events-auto"}
       >
-        <ScrollControls pages={2} damping={0.25}>
+        <ScrollControls pages={3} damping={0.25}>
           <ScrollTracker onScrollChange={onScrollChange} />
 
           <NeuralMesh activeNode={activeNode?.index ?? null} />
           <SkillClouds isVisible={activeNode === null} />
-
           <ExperienceTimeline
             activeNode={activeNode?.index ?? null}
             setActiveNode={setActiveNode}
           />
+          <ProjectGallery />
         </ScrollControls>
       </Canvas>
-
       <ExperienceOverlay
         activeNode={activeNode}
         setActiveNode={setActiveNode}
@@ -55,12 +59,6 @@ function Scene({ activeNode, setActiveNode, onScrollChange }: any) {
   );
 }
 
-/**
- * THE PERFORMANCE FIX:
- * We use React.memo and tell it to ONLY re-render if
- * activeNode or its inner index changes.
- * This ignores the 'currentText' state updates from the parent.
- */
 export default memo(Scene, (prev, next) => {
   return (
     prev.activeNode?.index === next.activeNode?.index &&
