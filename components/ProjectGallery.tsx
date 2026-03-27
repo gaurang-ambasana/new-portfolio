@@ -7,35 +7,51 @@ import * as THREE from "three";
 
 const projectData = [
   {
-    title: "AI Code Reviewer",
-    tech: "NEXT.JS • GROQ LLAMA-3",
+    title: "Weather App",
+    tech: "REACT",
     description:
-      "Intelligent feedback for multi-language code snippets using advanced LLM orchestration.",
-    color: "#818cf8", // Indigo
+      "A simple weather app for checking current conditions in a clean single-page interface.",
+    color: "#f59e0b",
+    link: "https://weather-app-522.netlify.app/",
+  },
+  {
+    title: "API Tester CLI",
+    tech: "JAVASCRIPT, HTML, CSS",
+    description:
+      "A browser-based API tester with methods, query params, headers, JSON input, and response output.",
+    color: "#38bdf8",
+    link: "https://api-tester-cli.vercel.app/",
+  },
+  {
+    title: "AI Code Reviewer",
+    tech: "NEXT.JS, GROQ AI",
+    description:
+      "An AI powered code review tool where you paste a snippet, choose a language, and get feedback on code quality.",
+    color: "#818cf8",
     link: "https://ai-code-reviewer-seven-snowy.vercel.app/",
   },
   {
-    title: "MERN eCommerce",
-    tech: "MONGODB • REACT • NODE.JS",
+    title: "Resume Destroyer",
+    tech: "NEXT.JS, GROQ AI",
     description:
-      "Complete full-stack platform with dynamic admin/consumer auth and RESTful APIs.",
-    color: "#34d399", // Emerald
-    link: "https://github.com/gaurang-ambasana/MERN-eCommerce",
+      "An AI powered resume review app that accepts a PDF upload and returns direct suggestions for improvement.",
+    color: "#34d399",
+    link: "https://resume-review-destroyer.vercel.app/",
   },
   {
     title: "Flow Chart Builder",
     tech: "NEXT.JS • REACT FLOW",
     description:
-      "Interactive node-based canvas featuring custom shapes and live schema validation.",
-    color: "#22d3ee", // Cyan
+      "A flowchart builder with shape controls, a node canvas, and a live JSON panel for updates.",
+    color: "#22d3ee",
     link: "https://flow-chart-builder-six.vercel.app/",
   },
-  {
+  { 
     title: "2048 Clone",
     tech: "VANILLA JAVASCRIPT",
     description:
-      "Browser-based game clone featuring smooth animations and mobile-responsive support.",
-    color: "#f472b6", // Pink
+      "A browser version of 2048 with keyboard and swipe support for desktop and mobile play.",
+    color: "#f472b6",
     link: "https://2048-clone-three.vercel.app/",
   },
 ];
@@ -46,44 +62,75 @@ function ProjectCard({ project, index, count }: any) {
   const contentRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
-  // Gallery Layout Constants
-  const spacing = 3.6;
+  const spreadIndex = index - (count - 1) / 2;
+  const spacingX = 1.78;
+  const arcLift = Math.abs(spreadIndex) * -0.28;
+  const restingTiltZ = -spreadIndex * 0.19;
+  const restingTiltY = -spreadIndex * 0.1;
 
   useFrame((state, delta) => {
     if (groupRef.current && contentRef.current) {
       const start = 0.65;
       const end = 0.95;
-      const scrollOpacity = THREE.MathUtils.smoothstep(scroll.offset, start, end);
-
-      const offset = index - (count - 1) / 2;
+      const scrollOpacity = THREE.MathUtils.smoothstep(
+        scroll.offset,
+        start,
+        end,
+      );
       const t = hovered ? 0.15 : 0.08;
 
-      const targetX = offset * spacing;
-      const targetY = scrollOpacity < 0.1 ? -15 : hovered ? 0.2 : 0; // Reduced vertical jump
-      
-      // THE FIX: Changed hovered Z from 3.5 to 1.0 (Much more subtle zoom)
-      // Also reduced the resting push-back from 1.5 to 0.8
-      const targetZ = hovered ? 1.0 : -Math.abs(offset) * 0.8; 
-      
-      // Reduced the resting angle so the cards are easier to read before hovering
-      const targetRotY = hovered ? 0 : -offset * 0.15; 
-      const targetRotZ = hovered ? 0 : -offset * 0.02;
+      const targetX =
+        spreadIndex * spacingX + (hovered ? spreadIndex * 0.16 : 0);
+      const targetY =
+        scrollOpacity < 0.1 ? -15 : arcLift + (hovered ? 0.68 : 0);
+      const targetZ = hovered ? 1.85 : -Math.abs(spreadIndex) * 0.55;
+      const targetRotY = hovered ? 0 : restingTiltY;
+      const targetRotZ = hovered ? 0 : restingTiltZ;
 
-      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, t);
-      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, t);
-      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, t);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, t);
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRotZ, t);
+      groupRef.current.position.x = THREE.MathUtils.lerp(
+        groupRef.current.position.x,
+        targetX,
+        t,
+      );
+      groupRef.current.position.y = THREE.MathUtils.lerp(
+        groupRef.current.position.y,
+        targetY,
+        t,
+      );
+      groupRef.current.position.z = THREE.MathUtils.lerp(
+        groupRef.current.position.z,
+        targetZ,
+        t,
+      );
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(
+        groupRef.current.rotation.y,
+        targetRotY,
+        t,
+      );
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(
+        groupRef.current.rotation.z,
+        targetRotZ,
+        t,
+      );
 
-      // Keep the text parallax subtle too
-      contentRef.current.position.z = THREE.MathUtils.lerp(contentRef.current.position.z, hovered ? 0.25 : 0.15, t);
+      contentRef.current.position.z = THREE.MathUtils.lerp(
+        contentRef.current.position.z,
+        hovered ? 0.3 : 0.14,
+        t,
+      );
 
       groupRef.current.children.forEach((child: any) => {
         if (child.material) {
-          child.material.opacity = THREE.MathUtils.lerp(child.material.opacity, scrollOpacity, 0.1);
+          child.material.opacity = THREE.MathUtils.lerp(
+            child.material.opacity,
+            scrollOpacity,
+            0.1,
+          );
           child.material.transparent = true;
         }
       });
+
+      groupRef.current.renderOrder = hovered ? 200 : 40 - Math.abs(spreadIndex);
     }
   });
 
@@ -107,25 +154,23 @@ function ProjectCard({ project, index, count }: any) {
     >
       <Float
         speed={hovered ? 1 : 3}
-        rotationIntensity={hovered ? 0.05 : 0.2}
-        floatIntensity={0.5}
+        rotationIntensity={hovered ? 0.04 : 0.16}
+        floatIntensity={0.28}
       >
-        {/* 1. The Physical Card Base (Premium Acrylic Look) */}
-        <RoundedBox args={[3.4, 4.8, 0.15]} radius={0.1} smoothness={4}>
+        <RoundedBox args={[2.58, 4.3, 0.14]} radius={0.12} smoothness={4}>
           <meshPhysicalMaterial
             color="#020617"
             metalness={0.9}
             roughness={0.2}
-            clearcoat={1.0} // Gives it a high-end glossy reflection
+            clearcoat={1.0}
             clearcoatRoughness={0.1}
             emissive={project.color}
             emissiveIntensity={hovered ? 0.4 : 0.02}
           />
         </RoundedBox>
 
-        {/* 2. The Ambient "Aura" behind the card */}
         <mesh position={[0, 0, -0.2]}>
-          <planeGeometry args={[3.8, 5.2]} />
+          <planeGeometry args={[3.05, 4.8]} />
           <meshBasicMaterial
             color={project.color}
             transparent
@@ -133,53 +178,53 @@ function ProjectCard({ project, index, count }: any) {
           />
         </mesh>
 
-        {/* 3. The Content (Wrapped in a ref for Z-axis Parallax) */}
         <group ref={contentRef}>
-          {/* Accent Line */}
-          <mesh position={[0, 1.9, 0]}>
-            <planeGeometry args={[2.8, 0.02]} />
+          <mesh position={[0, 1.76, 0]}>
+            <planeGeometry args={[2.08, 0.02]} />
             <meshBasicMaterial color={project.color} />
           </mesh>
 
           <Text
-            position={[-1.4, 1.6, 0]}
-            fontSize={0.25}
+            position={[-1.03, 1.4, 0]}
+            fontSize={0.2}
             color="#ffffff"
             fontWeight="900"
+            maxWidth={2.02}
+            lineHeight={1}
             anchorX="left"
+            anchorY="middle"
           >
             {project.title.toUpperCase()}
           </Text>
 
           <Text
-            position={[-1.4, 1.2, 0]}
-            fontSize={0.11}
+            position={[-1.03, 0.88, 0]}
+            fontSize={0.08}
             color={project.color}
             fontWeight="bold"
-            letterSpacing={0.15}
+            letterSpacing={0.11}
             anchorX="left"
           >
             {project.tech}
           </Text>
 
           <Text
-            position={[-1.4, 0.2, 0]}
-            fontSize={0.16}
+            position={[-1.03, 0.08, 0]}
+            fontSize={0.105}
             color="#94a3b8"
-            maxWidth={2.8}
-            lineHeight={1.6}
+            maxWidth={2.02}
+            lineHeight={1.46}
             anchorX="left"
             anchorY="top"
           >
             {project.description}
           </Text>
 
-          {/* Interactive Holographic Button */}
           <group
-            position={[0, -1.6, 0]}
+            position={[0, -1.42, 0]}
             onClick={() => window.open(project.link, "_blank")}
           >
-            <RoundedBox args={[2.8, 0.6, 0.05]} radius={0.05}>
+            <RoundedBox args={[1.9, 0.5, 0.05]} radius={0.05}>
               <meshStandardMaterial
                 color={hovered ? project.color : "#0f172a"}
                 metalness={0.5}
@@ -188,10 +233,10 @@ function ProjectCard({ project, index, count }: any) {
             </RoundedBox>
             <Text
               position={[0, 0, 0.03]}
-              fontSize={0.14}
+              fontSize={0.11}
               color={hovered ? "#fff" : project.color}
               fontWeight="900"
-              letterSpacing={0.1}
+              letterSpacing={0.08}
             >
               VIEW PROJECT
             </Text>
@@ -204,7 +249,7 @@ function ProjectCard({ project, index, count }: any) {
 
 export default function ProjectGallery() {
   return (
-    <group position={[0, -1.5, 0]}>
+    <group position={[0, -0.82, 0]}>
       {projectData.map((project, i) => (
         <ProjectCard
           key={i}
