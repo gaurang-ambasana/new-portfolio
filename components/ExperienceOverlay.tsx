@@ -45,6 +45,12 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
     ...expData[activeNode.index],
     highlights: detailedHighlights[activeNode.index],
   };
+  const scrollStyle = {
+    "--scrollbar-color": exp.color,
+    "--scrollbar-track": "rgba(255, 255, 255, 0.08)",
+    scrollbarColor: `${exp.color} rgba(255, 255, 255, 0.08)`,
+    scrollbarWidth: "thin",
+  } as React.CSSProperties;
 
   const handleNav = (dir: number) => {
     const next = (activeNode.index + dir + expData.length) % expData.length;
@@ -103,25 +109,27 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
         <p className="text-xl text-slate-200 font-medium mt-1">
           {exp.position}
         </p>
-        <ul
-          className="mt-8 space-y-6 flex-grow overflow-y-auto pr-4 custom-scrollbar"
-          style={{ "--scrollbar-color": exp.color } as React.CSSProperties}
+        <div
+          className="experience-scroll mt-8 flex-grow overflow-y-auto pr-3"
+          style={scrollStyle}
         >
-          {exp.highlights.map((h, i) => (
-            <li
-              key={i}
-              className="flex gap-4 text-slate-300 leading-relaxed text-[15px]"
-            >
-              <span
-                className="mt-1 text-[10px]"
-                style={{ color: exp.color }}
+          <ul className="space-y-6">
+            {exp.highlights.map((h, i) => (
+              <li
+                key={i}
+                className="flex gap-4 text-slate-300 leading-relaxed text-[15px]"
               >
-                ▶
-              </span>
-              {h}
-            </li>
-          ))}
-        </ul>
+                <span
+                  className="mt-1 text-[10px]"
+                  style={{ color: exp.color }}
+                >
+                  ▶
+                </span>
+                {h}
+              </li>
+            ))}
+          </ul>
+        </div>
         <button
           onClick={() => setActiveNode(null)}
           className="mt-8 py-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-2xl transition-all text-white font-bold text-xs uppercase tracking-widest"
