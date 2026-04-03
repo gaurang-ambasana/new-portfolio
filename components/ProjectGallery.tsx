@@ -46,7 +46,7 @@ const projectData = [
     color: "#22d3ee",
     link: "https://flow-chart-builder-six.vercel.app/",
   },
-  { 
+  {
     title: "2048 Clone",
     tech: "VANILLA JAVASCRIPT",
     description:
@@ -67,25 +67,75 @@ function ProjectCard({ project, index, count }: any) {
   const arcLift = Math.abs(spreadIndex) * -0.28;
   const restingTiltZ = -spreadIndex * 0.19;
   const restingTiltY = -spreadIndex * 0.1;
+  const stackRotationZ = -0.46 + index * 0.08;
+  const stackRotationY = 0.36 - index * 0.06;
 
   useFrame((state, delta) => {
     if (groupRef.current && contentRef.current) {
-      const start = 0.65;
-      const end = 0.95;
-      const scrollOpacity = THREE.MathUtils.smoothstep(
+      const fadeIn = THREE.MathUtils.smoothstep(scroll.offset, 0.48, 0.62);
+      const fadeOut = 1 - THREE.MathUtils.smoothstep(scroll.offset, 0.74, 0.81);
+      const scrollOpacity = fadeIn * fadeOut;
+      const dealProgress = THREE.MathUtils.smoothstep(
         scroll.offset,
-        start,
-        end,
+        0.49 + index * 0.015,
+        0.6 + index * 0.015,
       );
+      const settleProgress = THREE.MathUtils.smoothstep(
+        scroll.offset,
+        0.56,
+        0.69,
+      );
+      const exitProgress = THREE.MathUtils.smoothstep(scroll.offset, 0.73, 0.8);
       const t = hovered ? 0.15 : 0.08;
 
-      const targetX =
-        spreadIndex * spacingX + (hovered ? spreadIndex * 0.16 : 0);
-      const targetY =
-        scrollOpacity < 0.1 ? -15 : arcLift + (hovered ? 0.68 : 0);
-      const targetZ = hovered ? 1.85 : -Math.abs(spreadIndex) * 0.55;
-      const targetRotY = hovered ? 0 : restingTiltY;
-      const targetRotZ = hovered ? 0 : restingTiltZ;
+      const dealtX = spreadIndex * spacingX;
+      const dealtY = arcLift;
+      const dealtZ = -Math.abs(spreadIndex) * 0.55;
+      const stackX = 0;
+      const stackY = -4.4 + index * 0.1;
+      const stackZ = 4.2 - index * 0.18;
+
+      const baseX = THREE.MathUtils.lerp(stackX, dealtX, dealProgress);
+      const baseY = THREE.MathUtils.lerp(stackY, dealtY, dealProgress);
+      const baseZ = THREE.MathUtils.lerp(stackZ, dealtZ, dealProgress);
+      const waveLift =
+        Math.sin(state.clock.elapsedTime * 0.9 + index * 0.6) *
+        0.06 *
+        settleProgress;
+
+      const exitX = THREE.MathUtils.lerp(
+        baseX,
+        spreadIndex * 0.6,
+        exitProgress,
+      );
+      const exitY = THREE.MathUtils.lerp(
+        baseY + waveLift,
+        -2.7 - Math.abs(spreadIndex) * 0.18,
+        exitProgress,
+      );
+      const exitZ = THREE.MathUtils.lerp(
+        baseZ,
+        2.6 + index * 0.08,
+        exitProgress,
+      );
+
+      const targetX = exitX + (hovered ? spreadIndex * 0.16 : 0);
+      const targetY = scrollOpacity < 0.04 ? -15 : exitY + (hovered ? 0.68 : 0);
+      const targetZ = hovered ? exitZ + 1.85 : exitZ;
+      const targetRotY = hovered
+        ? THREE.MathUtils.lerp(stackRotationY, 0, dealProgress)
+        : THREE.MathUtils.lerp(
+            THREE.MathUtils.lerp(stackRotationY, restingTiltY, dealProgress),
+            0,
+            exitProgress * 0.45,
+          );
+      const targetRotZ = hovered
+        ? THREE.MathUtils.lerp(stackRotationZ, 0, dealProgress)
+        : THREE.MathUtils.lerp(
+            THREE.MathUtils.lerp(stackRotationZ, restingTiltZ, dealProgress),
+            restingTiltZ * 0.35,
+            exitProgress,
+          );
 
       groupRef.current.position.x = THREE.MathUtils.lerp(
         groupRef.current.position.x,
@@ -116,6 +166,11 @@ function ProjectCard({ project, index, count }: any) {
       contentRef.current.position.z = THREE.MathUtils.lerp(
         contentRef.current.position.z,
         hovered ? 0.3 : 0.14,
+        t,
+      );
+      contentRef.current.position.y = THREE.MathUtils.lerp(
+        contentRef.current.position.y,
+        hovered ? 0.08 : 0,
         t,
       );
 
@@ -248,8 +303,33 @@ function ProjectCard({ project, index, count }: any) {
 }
 
 export default function ProjectGallery() {
+  const scroll = useScroll();
+  const galleryRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (!galleryRef.current) return;
+
+    const fadeIn = THREE.MathUtils.smoothstep(scroll.offset, 0.48, 0.62);
+    const fadeOut = 1 - THREE.MathUtils.smoothstep(scroll.offset, 0.74, 0.81);
+    const visible = fadeIn * fadeOut;
+    const settle = THREE.MathUtils.smoothstep(scroll.offset, 0.54, 0.68);
+    const exit = THREE.MathUtils.smoothstep(scroll.offset, 0.73, 0.8);
+
+    galleryRef.current.position.y = THREE.MathUtils.lerp(
+      -2.4,
+      THREE.MathUtils.lerp(-1.1, -0.78, settle),
+      visible,
+    );
+    galleryRef.current.position.z =
+      THREE.MathUtils.lerp(3.4, 0, visible) + exit * 0.8;
+    galleryRef.current.rotation.x = THREE.MathUtils.lerp(0.16, 0, visible);
+    galleryRef.current.rotation.z = THREE.MathUtils.lerp(-0.08, 0, visible);
+    galleryRef.current.scale.setScalar(Math.max(0.001, visible));
+    galleryRef.current.visible = visible > 0.08;
+  });
+
   return (
-    <group position={[0, -0.82, 0]}>
+    <group ref={galleryRef} position={[0, -2.4, 3.4]} scale={0.001}>
       {projectData.map((project, i) => (
         <ProjectCard
           key={i}

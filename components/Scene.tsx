@@ -9,6 +9,7 @@ import ExperienceTimeline from "./ExperienceNodes";
 import ExperienceOverlay from "./ExperienceOverlay";
 import SkillClouds from "./SkillsCloud";
 import ProjectGallery from "./ProjectGallery";
+import ContactConstellation from "./ContactConstellation";
 
 function ScrollTracker({
   onScrollChange,
@@ -16,6 +17,7 @@ function ScrollTracker({
   onScrollChange: (state: {
     isScrolled: boolean;
     isPastExperience: boolean;
+    isPastProjects: boolean;
   }) => void;
 }) {
   const scroll = useScroll();
@@ -23,7 +25,8 @@ function ScrollTracker({
     const checkScroll = () => {
       onScrollChange({
         isScrolled: scroll.offset > 0.05,
-        isPastExperience: scroll.offset > 0.55,
+        isPastExperience: scroll.offset > 0.53,
+        isPastProjects: scroll.offset > 0.84,
       });
     };
     const interval = setInterval(checkScroll, 50);
@@ -39,7 +42,7 @@ function Scene({ activeNode, setActiveNode, onScrollChange }: any) {
         camera={{ position: [0, 0, 11], fov: 50 }}
         className={activeNode ? "pointer-events-none" : "pointer-events-auto"}
       >
-        <ScrollControls pages={3} damping={0.25}>
+        <ScrollControls pages={4} damping={0.25}>
           <ScrollTracker onScrollChange={onScrollChange} />
 
           <NeuralMesh activeNode={activeNode?.index ?? null} />
@@ -49,6 +52,7 @@ function Scene({ activeNode, setActiveNode, onScrollChange }: any) {
             setActiveNode={setActiveNode}
           />
           <ProjectGallery />
+          <ContactConstellation />
         </ScrollControls>
       </Canvas>
       <ExperienceOverlay
