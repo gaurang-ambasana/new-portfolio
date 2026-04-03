@@ -25,7 +25,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -35,7 +36,8 @@ html, body {
 
 .experience-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-color, #6366f1) var(--scrollbar-track, rgba(255, 255, 255, 0.08));
+  scrollbar-color: var(--scrollbar-color, #6366f1)
+    var(--scrollbar-track, rgba(255, 255, 255, 0.08));
 }
 
 .experience-scroll::-webkit-scrollbar {
