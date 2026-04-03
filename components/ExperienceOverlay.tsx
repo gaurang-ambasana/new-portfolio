@@ -119,7 +119,10 @@ export default function ExperienceOverlay({ activeNode, setActiveNode }: any) {
                 key={i}
                 className="flex gap-4 text-slate-300 leading-relaxed text-[15px]"
               >
-                <span className="mt-1 text-[10px]" style={{ color: exp.color }}>
+                <span
+                  className="mt-1 text-[10px]"
+                  style={{ color: exp.color }}
+                >
                   ▶
                 </span>
                 {h}
