@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Gaurang Ambasana - Software Engineer",
-  description: "Portfolio of Gaurang Ambasana, a passionate software engineer specializing in full stack development. Explore my projects, experience, and skills in an interactive 3D environment.",
+  description:
+    "Portfolio of Gaurang Ambasana, a passionate software engineer specializing in full stack development. Explore my projects, experience, and skills in an interactive 3D environment.",
 };
 
 export default function RootLayout({
